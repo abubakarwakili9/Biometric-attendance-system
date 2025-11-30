@@ -3,619 +3,520 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biometric Attendance System</title>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>SmartAI-Sort - Ore Classification</title>
     <style>
-        body {
+        * {
             margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-                sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 12px;
+            color: #555;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        input {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-predict {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-sample {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-clear {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .result-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .result-box.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .result-label {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .result-label.clean {
+            color: #51cf66;
+        }
+
+        .result-label.contaminated {
+            color: #ff6b6b;
+        }
+
+        .confidence-bar {
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #51cf66 0%, #ffd43b 50%, #ff6b6b 100%);
+            transition: width 0.5s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: white;
+            font-weight: 600;
+        }
+
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .detail-item {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 3px;
+        }
+
+        .detail-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .status-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-high {
+            background: #d3f9d8;
+            color: #2b8a3e;
+        }
+
+        .status-medium {
+            background: #fff3bf;
+            color: #e67700;
+        }
+
+        .status-low {
+            background: #ffe3e3;
+            color: #c92a2a;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-box {
+            background: #ffe3e3;
+            border-left: 4px solid #ff6b6b;
+            padding: 15px;
+            border-radius: 8px;
+            color: #c92a2a;
+            display: none;
+            margin-top: 20px;
+        }
+
+        .error-box.show {
+            display: block;
         }
     </style>
 </head>
 <body>
-    <div id="root"></div>
+    <div class="container">
+        <h1>🎯 SmartAI-Sort</h1>
+        <p class="subtitle">AI-Powered Ore Contamination Classification</p>
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
-
-        // Lucide React Icons (inline minimal versions)
-        const Users = ({ className }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-        );
-
-        const Fingerprint = ({ className }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
-            </svg>
-        );
-
-        const FileText = ({ className }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-        );
-
-        const Calendar = ({ className }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-        );
-
-        const Clock = ({ className }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-        );
-
-        const UserPlus = ({ className }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-            </svg>
-        );
-
-        const CheckCircle = ({ className }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-        );
-
-        const XCircle = ({ className }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-        );
-
-        const Download = ({ className }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-        );
-
-        // Simple storage API using localStorage
-        window.storage = {
-            get: (key) => {
-                return new Promise((resolve) => {
-                    const value = localStorage.getItem(key);
-                    resolve(value ? { value } : null);
-                });
-            },
-            set: (key, value) => {
-                return new Promise((resolve) => {
-                    localStorage.setItem(key, value);
-                    resolve();
-                });
-            }
-        };
-
-        const BiometricAttendanceSystem = () => {
-          const [activeTab, setActiveTab] = useState('dashboard');
-          const [users, setUsers] = useState([]);
-          const [attendanceRecords, setAttendanceRecords] = useState([]);
-          const [stats, setStats] = useState({ totalUsers: 0, todayAttendance: 0, successRate: 94 });
-          
-          const [regForm, setRegForm] = useState({ name: '', userId: '', department: '' });
-          const [enrollmentStatus, setEnrollmentStatus] = useState('');
-          
-          const [reportFilter, setReportFilter] = useState({ startDate: '', endDate: '' });
-          
-          const [scannerStatus, setScannerStatus] = useState('Ready');
-
-          useEffect(() => {
-            loadData();
-          }, []);
-
-          const loadData = async () => {
-            try {
-              const usersData = await window.storage.get('biometric_users');
-              const attendanceData = await window.storage.get('biometric_attendance');
-              
-              if (usersData) {
-                const parsedUsers = JSON.parse(usersData.value);
-                setUsers(parsedUsers);
-                setStats(prev => ({ ...prev, totalUsers: parsedUsers.length }));
-              }
-              
-              if (attendanceData) {
-                const parsedAttendance = JSON.parse(attendanceData.value);
-                setAttendanceRecords(parsedAttendance);
-                
-                const today = new Date().toDateString();
-                const todayCount = parsedAttendance.filter(r => 
-                  new Date(r.timestamp).toDateString() === today
-                ).length;
-                setStats(prev => ({ ...prev, todayAttendance: todayCount }));
-              }
-            } catch (error) {
-              console.log('No existing data found, starting fresh');
-            }
-          };
-
-          const saveUsers = async (updatedUsers) => {
-            try {
-              await window.storage.set('biometric_users', JSON.stringify(updatedUsers));
-              setUsers(updatedUsers);
-              setStats(prev => ({ ...prev, totalUsers: updatedUsers.length }));
-            } catch (error) {
-              console.error('Error saving users:', error);
-            }
-          };
-
-          const saveAttendance = async (updatedAttendance) => {
-            try {
-              await window.storage.set('biometric_attendance', JSON.stringify(updatedAttendance));
-              setAttendanceRecords(updatedAttendance);
-              
-              const today = new Date().toDateString();
-              const todayCount = updatedAttendance.filter(r => 
-                new Date(r.timestamp).toDateString() === today
-              ).length;
-              setStats(prev => ({ ...prev, todayAttendance: todayCount }));
-            } catch (error) {
-              console.error('Error saving attendance:', error);
-            }
-          };
-
-          const handleEnrollment = async () => {
-            if (!regForm.name || !regForm.userId || !regForm.department) {
-              setEnrollmentStatus('error:Please fill all fields');
-              return;
-            }
-
-            if (users.some(u => u.userId === regForm.userId)) {
-              setEnrollmentStatus('error:User ID already exists');
-              return;
-            }
-
-            setScannerStatus('Scanning...');
-            setEnrollmentStatus('scanning');
-            
-            setTimeout(async () => {
-              const newUser = {
-                ...regForm,
-                fingerprintTemplate: `FP_${Math.random().toString(36).substr(2, 9)}`,
-                dateEnrolled: new Date().toISOString()
-              };
-              
-              const updatedUsers = [...users, newUser];
-              await saveUsers(updatedUsers);
-              
-              setScannerStatus('Ready');
-              setEnrollmentStatus('success:User Enrolled Successfully!');
-              setRegForm({ name: '', userId: '', department: '' });
-              
-              setTimeout(() => setEnrollmentStatus(''), 3000);
-            }, 2000);
-          };
-
-          const handleAttendanceLog = async () => {
-            setScannerStatus('Scanning...');
-            
-            setTimeout(async () => {
-              const success = Math.random() < 0.94;
-              
-              if (success && users.length > 0) {
-                const randomUser = users[Math.floor(Math.random() * users.length)];
-                
-                const newRecord = {
-                  attendanceId: attendanceRecords.length + 1,
-                  userId: randomUser.userId,
-                  name: randomUser.name,
-                  department: randomUser.department,
-                  timestamp: new Date().toISOString(),
-                  status: 'Present'
-                };
-                
-                const updatedAttendance = [...attendanceRecords, newRecord];
-                await saveAttendance(updatedAttendance);
-                
-                setScannerStatus(`Success: ${randomUser.name}`);
-              } else if (users.length === 0) {
-                setScannerStatus('Error: No users enrolled');
-              } else {
-                setScannerStatus('Error: Fingerprint not recognized');
-              }
-              
-              setTimeout(() => setScannerStatus('Ready'), 3000);
-            }, 2000);
-          };
-
-          const generateReport = () => {
-            let filtered = [...attendanceRecords];
-            
-            if (reportFilter.startDate) {
-              filtered = filtered.filter(r => 
-                new Date(r.timestamp) >= new Date(reportFilter.startDate)
-              );
-            }
-            
-            if (reportFilter.endDate) {
-              filtered = filtered.filter(r => 
-                new Date(r.timestamp) <= new Date(reportFilter.endDate)
-              );
-            }
-            
-            return filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-          };
-
-          const exportToCSV = () => {
-            const report = generateReport();
-            const headers = ['Attendance ID', 'User ID', 'Name', 'Department', 'Date', 'Time', 'Status'];
-            const rows = report.map(r => [
-              r.attendanceId,
-              r.userId,
-              r.name,
-              r.department,
-              new Date(r.timestamp).toLocaleDateString(),
-              new Date(r.timestamp).toLocaleTimeString(),
-              r.status
-            ]);
-            
-            const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n');
-            const blob = new Blob([csvContent], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `attendance_report_${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
-          };
-
-          return (
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-              <div className="bg-white shadow-md">
-                <div className="container mx-auto px-4 py-6">
-                  <h1 className="text-3xl font-bold text-indigo-600">Biometric Attendance System</h1>
-                  <p className="text-gray-600 mt-1">Advanced fingerprint-based attendance management</p>
-                </div>
-              </div>
-
-              <div className="container mx-auto px-4 py-8">
-                <div className="bg-white rounded-lg shadow-md mb-6">
-                  <div className="flex border-b overflow-x-auto">
-                    <button
-                      onClick={() => setActiveTab('dashboard')}
-                      className={`px-6 py-4 font-medium transition whitespace-nowrap ${
-                        activeTab === 'dashboard'
-                          ? 'border-b-2 border-indigo-600 text-indigo-600'
-                          : 'text-gray-600 hover:text-gray-800'
-                      }`}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <Calendar className="w-5 h-5" />
-                        <span>Dashboard</span>
-                      </div>
-                    </button>
-                    <button
-                      onClick={() => setActiveTab('register')}
-                      className={`px-6 py-4 font-medium transition whitespace-nowrap ${
-                        activeTab === 'register'
-                          ? 'border-b-2 border-indigo-600 text-indigo-600'
-                          : 'text-gray-600 hover:text-gray-800'
-                      }`}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <UserPlus className="w-5 h-5" />
-                        <span>Register User</span>
-                      </div>
-                    </button>
-                    <button
-                      onClick={() => setActiveTab('attendance')}
-                      className={`px-6 py-4 font-medium transition whitespace-nowrap ${
-                        activeTab === 'attendance'
-                          ? 'border-b-2 border-indigo-600 text-indigo-600'
-                          : 'text-gray-600 hover:text-gray-800'
-                      }`}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <Fingerprint className="w-5 h-5" />
-                        <span>Log Attendance</span>
-                      </div>
-                    </button>
-                    <button
-                      onClick={() => setActiveTab('reports')}
-                      className={`px-6 py-4 font-medium transition whitespace-nowrap ${
-                        activeTab === 'reports'
-                          ? 'border-b-2 border-indigo-600 text-indigo-600'
-                          : 'text-gray-600 hover:text-gray-800'
-                      }`}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <FileText className="w-5 h-5" />
-                        <span>Reports</span>
-                      </div>
-                    </button>
-                  </div>
-                </div>
-
-                {activeTab === 'dashboard' && (
-                  <div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                      <div className="bg-white rounded-lg shadow-md p-6">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-gray-600 text-sm font-medium">Total Users</p>
-                            <p className="text-3xl font-bold text-indigo-600 mt-2">{stats.totalUsers}</p>
-                          </div>
-                          <Users className="w-12 h-12 text-indigo-600 opacity-20" />
-                        </div>
-                      </div>
-                      
-                      <div className="bg-white rounded-lg shadow-md p-6">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-gray-600 text-sm font-medium">Today's Attendance</p>
-                            <p className="text-3xl font-bold text-green-600 mt-2">{stats.todayAttendance}</p>
-                          </div>
-                          <Clock className="w-12 h-12 text-green-600 opacity-20" />
-                        </div>
-                      </div>
-                      
-                      <div className="bg-white rounded-lg shadow-md p-6">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-gray-600 text-sm font-medium">Success Rate</p>
-                            <p className="text-3xl font-bold text-blue-600 mt-2">{stats.successRate}%</p>
-                          </div>
-                          <Fingerprint className="w-12 h-12 text-blue-600 opacity-20" />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-white rounded-lg shadow-md p-6">
-                      <h2 className="text-xl font-bold text-gray-800 mb-4">Registered Users ({users.length})</h2>
-                      <div className="overflow-x-auto">
-                        <table className="w-full">
-                          <thead className="bg-gray-50">
-                            <tr>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">User ID</th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Department</th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date Enrolled</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-gray-200">
-                            {users.map((user, index) => (
-                              <tr key={index} className="hover:bg-gray-50">
-                                <td className="px-4 py-3 text-sm text-gray-900">{user.userId}</td>
-                                <td className="px-4 py-3 text-sm text-gray-900">{user.name}</td>
-                                <td className="px-4 py-3 text-sm text-gray-600">{user.department}</td>
-                                <td className="px-4 py-3 text-sm text-gray-600">
-                                  {new Date(user.dateEnrolled).toLocaleDateString()}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                        {users.length === 0 && (
-                          <p className="text-center text-gray-500 py-8">No users registered yet</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'register' && (
-                  <div className="bg-white rounded-lg shadow-md p-8 max-w-2xl mx-auto">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-6">Register New User</h2>
-                    
-                    <div className="space-y-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                        <input
-                          type="text"
-                          value={regForm.name}
-                          onChange={(e) => setRegForm({...regForm, name: e.target.value})}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                          placeholder="Enter full name"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">User ID</label>
-                        <input
-                          type="text"
-                          value={regForm.userId}
-                          onChange={(e) => setRegForm({...regForm, userId: e.target.value})}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                          placeholder="Enter unique user ID"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Department</label>
-                        <input
-                          type="text"
-                          value={regForm.department}
-                          onChange={(e) => setRegForm({...regForm, department: e.target.value})}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                          placeholder="Enter department"
-                        />
-                      </div>
-                      
-                      <div className="bg-gray-50 rounded-lg p-6 border-2 border-dashed border-gray-300">
-                        <div className="text-center">
-                          <Fingerprint className="w-16 h-16 mx-auto text-indigo-600 mb-4" />
-                          <p className="text-gray-700 font-medium mb-2">Fingerprint Scanner Status</p>
-                          <p className={`text-lg font-semibold ${
-                            scannerStatus === 'Ready' ? 'text-green-600' :
-                            scannerStatus.includes('Scanning') ? 'text-blue-600' :
-                            scannerStatus.includes('Success') ? 'text-green-600' :
-                            'text-red-600'
-                          }`}>
-                            {scannerStatus}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      {enrollmentStatus && (
-                        <div className={`p-4 rounded-lg flex items-center space-x-2 ${
-                          enrollmentStatus.startsWith('success') ? 'bg-green-100 text-green-800' :
-                          enrollmentStatus === 'scanning' ? 'bg-blue-100 text-blue-800' :
-                          'bg-red-100 text-red-800'
-                        }`}>
-                          {enrollmentStatus.startsWith('success') ? <CheckCircle className="w-5 h-5" /> :
-                           enrollmentStatus === 'scanning' ? <Fingerprint className="w-5 h-5 animate-pulse" /> :
-                           <XCircle className="w-5 h-5" />}
-                          <span className="font-medium">
-                            {enrollmentStatus.split(':')[1] || enrollmentStatus}
-                          </span>
-                        </div>
-                      )}
-                      
-                      <button
-                        onClick={handleEnrollment}
-                        disabled={enrollmentStatus === 'scanning'}
-                        className="w-full bg-indigo-600 text-white py-3 rounded-lg font-medium hover:bg-indigo-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
-                      >
-                        Enroll User
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'attendance' && (
-                  <div className="bg-white rounded-lg shadow-md p-8 max-w-2xl mx-auto">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-6">Log Attendance</h2>
-                    
-                    <div className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-lg p-12 border-2 border-indigo-200">
-                      <div className="text-center">
-                        <Fingerprint className="w-24 h-24 mx-auto text-indigo-600 mb-6" />
-                        <h3 className="text-xl font-bold text-gray-800 mb-4">Place Finger on Scanner</h3>
-                        <p className="text-gray-600 mb-6">Ensure your finger is clean and properly placed on the sensor</p>
-                        
-                        <div className="bg-white rounded-lg p-6 mb-6">
-                          <p className="text-gray-700 font-medium mb-2">Scanner Status</p>
-                          <p className={`text-2xl font-bold ${
-                            scannerStatus === 'Ready' ? 'text-green-600' :
-                            scannerStatus.includes('Scanning') ? 'text-blue-600' :
-                            scannerStatus.includes('Success') ? 'text-green-600' :
-                            'text-red-600'
-                          }`}>
-                            {scannerStatus}
-                          </p>
-                        </div>
-                        
-                        <button
-                          onClick={handleAttendanceLog}
-                          disabled={scannerStatus.includes('Scanning')}
-                          className="bg-indigo-600 text-white px-8 py-4 rounded-lg font-medium text-lg hover:bg-indigo-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
-                        >
-                          {scannerStatus.includes('Scanning') ? 'Scanning...' : 'Scan Fingerprint'}
-                        </button>
-                      </div>
-                    </div>
-                    
-                    <div className="mt-8 bg-blue-50 rounded-lg p-4">
-                      <h4 className="font-semibold text-gray-800 mb-2">Tips for Best Results:</h4>
-                      <ul className="text-sm text-gray-700 space-y-1">
-                        <li>• Ensure your finger is clean and dry</li>
-                        <li>• Place your finger firmly on the sensor</li>
-                        <li>• Keep your finger still during scanning</li>
-                        <li>• If recognition fails, try again with proper placement</li>
-                      </ul>
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'reports' && (
-                  <div className="space-y-6">
-                    <div className="bg-white rounded-lg shadow-md p-6">
-                      <h2 className="text-2xl font-bold text-gray-800 mb-6">Generate Attendance Report</h2>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
-                          <input
-                            type="date"
-                            value={reportFilter.startDate}
-                            onChange={(e) => setReportFilter({...reportFilter, startDate: e.target.value})}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
-                          <input
-                            type="date"
-                            value={reportFilter.endDate}
-                            onChange={(e) => setReportFilter({...reportFilter, endDate: e.target.value})}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                          />
-                        </div>
-                        
-                        <div className="flex items-end">
-                          <button
-                            onClick={exportToCSV}
-                            className="w-full bg-green-600 text-white py-2 rounded-lg font-medium hover:bg-green-700 transition flex items-center justify-center space-x-2"
-                          >
-                            <Download className="w-5 h-5" />
-                            <span>Export CSV</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-white rounded-lg shadow-md p-6">
-                      <h3 className="text-xl font-bold text-gray-800 mb-4">
-                        Attendance Records ({generateReport().length})
-                      </h3>
-                      <div className="overflow-x-auto">
-                        <table className="w-full">
-                          <thead className="bg-gray-50">
-                            <tr>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">User ID</th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Department</th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time</th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-gray-200">
-                            {generateReport().map((record, index) => (
-                              <tr key={index} className="hover:bg-gray-50">
-                                <td className="px-4 py-3 text-sm text-gray-900">{record.attendanceId}</td>
-                                <td className="px-4 py-3 text-sm text-gray-900">{record.userId}</td>
-                                <td className="px-4 py-3 text-sm text-gray-900">{record.name}</td>
-                                <td className="px-4 py-3 text-sm text-gray-600">{record.department}</td>
-                                <td className="px-4 py-3 text-sm text-gray-600">
-                                  {new Date(record.timestamp).toLocaleDateString()}
-                                </td>
-                                <td className="px-4 py-3 text-sm text-gray-600">
-                                  {new Date(record.timestamp).toLocaleTimeString()}
-                                </td>
-                                <td className="px-4 py-3">
-                                  <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                                    {record.status}
-                                  </span>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                        {generateReport().length === 0 && (
-                          <p className="text-center text-gray-500 py-8">No records found for the selected date range</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
+        <div class="input-grid">
+            <div class="input-group">
+                <label for="Na2O">Na₂O (%)</label>
+                <input type="number" id="Na2O" step="0.01" placeholder="0.62">
             </div>
-          );
+            <div class="input-group">
+                <label for="MgO">MgO (%)</label>
+                <input type="number" id="MgO" step="0.01" placeholder="0.38">
+            </div>
+            <div class="input-group">
+                <label for="Al2O3">Al₂O₃ (%)</label>
+                <input type="number" id="Al2O3" step="0.01" placeholder="19.61">
+            </div>
+            <div class="input-group">
+                <label for="SiO2">SiO₂ (%)</label>
+                <input type="number" id="SiO2" step="0.01" placeholder="71.99">
+            </div>
+            <div class="input-group">
+                <label for="K2O">K₂O (%)</label>
+                <input type="number" id="K2O" step="0.01" placeholder="4.84">
+            </div>
+            <div class="input-group">
+                <label for="CaO">CaO (%)</label>
+                <input type="number" id="CaO" step="0.01" placeholder="0.31">
+            </div>
+            <div class="input-group">
+                <label for="TiO2">TiO₂ (%)</label>
+                <input type="number" id="TiO2" step="0.01" placeholder="0.07">
+            </div>
+            <div class="input-group">
+                <label for="Fe2O3">Fe₂O₃ (ppm)</label>
+                <input type="number" id="Fe2O3" step="0.01" placeholder="1.18">
+            </div>
+            <div class="input-group">
+                <label for="MnO">MnO (ppm)</label>
+                <input type="number" id="MnO" step="1" placeholder="630">
+            </div>
+            <div class="input-group">
+                <label for="CuO">CuO (ppm)</label>
+                <input type="number" id="CuO" step="1" placeholder="10">
+            </div>
+            <div class="input-group">
+                <label for="ZnO">ZnO (ppm)</label>
+                <input type="number" id="ZnO" step="1" placeholder="70">
+            </div>
+            <div class="input-group">
+                <label for="PbO2">PbO₂ (ppm)</label>
+                <input type="number" id="PbO2" step="1" placeholder="10">
+            </div>
+            <div class="input-group">
+                <label for="Rb2O">Rb₂O (ppm)</label>
+                <input type="number" id="Rb2O" step="1" placeholder="430">
+            </div>
+            <div class="input-group">
+                <label for="SrO">SrO (ppm)</label>
+                <input type="number" id="SrO" step="1" placeholder="0">
+            </div>
+            <div class="input-group">
+                <label for="Y2O3">Y₂O₃ (ppm)</label>
+                <input type="number" id="Y2O3" step="1" placeholder="40">
+            </div>
+            <div class="input-group">
+                <label for="ZrO2">ZrO₂ (ppm)</label>
+                <input type="number" id="ZrO2" step="1" placeholder="80">
+            </div>
+            <div class="input-group">
+                <label for="P2O5">P₂O₅ (ppm)</label>
+                <input type="number" id="P2O5" step="1" placeholder="90">
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button class="btn-predict" onclick="predict()">🔍 Classify Ore</button>
+            <button class="btn-sample" onclick="loadSample()">📋 Load Sample</button>
+            <button class="btn-clear" onclick="clearInputs()">🗑️ Clear</button>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Analyzing sample...</p>
+        </div>
+
+        <div class="error-box" id="errorBox">
+            <strong>⚠️ Error:</strong> <span id="errorMessage"></span>
+        </div>
+
+        <div class="result-box" id="resultBox">
+            <div class="result-header">
+                <div class="result-label" id="resultLabel">Clean</div>
+                <div class="status-badge" id="statusBadge">HIGH CONFIDENCE</div>
+            </div>
+
+            <div class="confidence-bar">
+                <div class="confidence-fill" id="confidenceFill">
+                    <span id="confidenceText">0%</span>
+                </div>
+            </div>
+
+            <div class="result-details">
+                <div class="detail-item">
+                    <div class="detail-label">Prediction</div>
+                    <div class="detail-value" id="predictionValue">-</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Confidence</div>
+                    <div class="detail-value" id="confidenceValue">-</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Inference Time</div>
+                    <div class="detail-value" id="inferenceTime">-</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Recommended Action</div>
+                    <div class="detail-value" id="actionValue">-</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+
+        // Feature names in correct order
+        const features = [
+            'Na2O', 'MgO', 'Al2O3', 'SiO2', 'K2O', 'CaO', 'TiO2', 'Fe2O3',
+            'MnO', 'CuO', 'ZnO', 'PbO2', 'Rb2O', 'SrO', 'Y2O3', 'ZrO2', 'P2O5'
+        ];
+
+        // Sample clean ore data
+        const sampleData = {
+            'Na2O': 0.62, 'MgO': 0.38, 'Al2O3': 19.61, 'SiO2': 71.99,
+            'K2O': 4.84, 'CaO': 0.31, 'TiO2': 0.07, 'Fe2O3': 1.18,
+            'MnO': 630, 'CuO': 10, 'ZnO': 70, 'PbO2': 10,
+            'Rb2O': 430, 'SrO': 0, 'Y2O3': 40, 'ZrO2': 80, 'P2O5': 90
         };
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<BiometricAttendanceSystem />);
+        function loadSample() {
+            Object.keys(sampleData).forEach(key => {
+                document.getElementById(key).value = sampleData[key];
+            });
+            hideError();
+        }
+
+        function clearInputs() {
+            features.forEach(feature => {
+                document.getElementById(feature).value = '';
+            });
+            document.getElementById('resultBox').classList.remove('show');
+            hideError();
+        }
+
+        function hideError() {
+            document.getElementById('errorBox').classList.remove('show');
+        }
+
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorBox').classList.add('show');
+        }
+
+        async function predict() {
+            // Collect input data
+            const sample = {};
+            let hasEmpty = false;
+
+            features.forEach(feature => {
+                const value = document.getElementById(feature).value;
+                if (value === '') {
+                    hasEmpty = true;
+                }
+                sample[feature] = parseFloat(value) || 0;
+            });
+
+            if (hasEmpty) {
+                showError('Please fill all fields or click "Load Sample" to use example data');
+                return;
+            }
+
+            // Hide previous results and errors
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('resultBox').classList.remove('show');
+            hideError();
+
+            try {
+                // Call API
+                const response = await fetch(`${API_URL}/predict`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        sample: sample
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                // Display results
+                displayResults(result);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Error connecting to API. Make sure the backend server is running: uvicorn api_neural_network:app --reload --port 8000');
+            } finally {
+                document.getElementById('loading').classList.remove('show');
+            }
+        }
+
+        function displayResults(result) {
+            // Show result box
+            document.getElementById('resultBox').classList.add('show');
+
+            // Set label and color
+            const label = result.label;
+            const labelElement = document.getElementById('resultLabel');
+            labelElement.textContent = label;
+            labelElement.className = 'result-label ' + label.toLowerCase();
+
+            // Set confidence bar
+            const confidence = result.confidence * 100;
+            document.getElementById('confidenceFill').style.width = confidence + '%';
+            document.getElementById('confidenceText').textContent = confidence.toFixed(1) + '%';
+
+            // Set status badge
+            const status = result.decision_status.status;
+            const statusBadge = document.getElementById('statusBadge');
+            statusBadge.textContent = status.replace('_', ' ');
+            
+            if (status === 'HIGH_CONFIDENCE') {
+                statusBadge.className = 'status-badge status-high';
+            } else if (status === 'MEDIUM_CONFIDENCE') {
+                statusBadge.className = 'status-badge status-medium';
+            } else {
+                statusBadge.className = 'status-badge status-low';
+            }
+
+            // Set details
+            document.getElementById('predictionValue').textContent = label;
+            document.getElementById('confidenceValue').textContent = confidence.toFixed(2) + '%';
+            document.getElementById('inferenceTime').textContent = result.inference_time_ms.toFixed(2) + 'ms';
+            document.getElementById('actionValue').textContent = result.decision_status.action.replace(/_/g, ' ');
+        }
+
+        // Load sample data on page load
+        window.onload = function() {
+            console.log('SmartAI-Sort Frontend Loaded');
+            console.log('API URL:', API_URL);
+        };
     </script>
 </body>
 </html>
